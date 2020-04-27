@@ -1,7 +1,12 @@
 from PIL import Image, ImageFont, ImageDraw
 from requests_html import HTMLSession
-from textimage import make_image
 from random import choice
+from datetime import datetime
+
+now = datetime.now()
+
+current_time = now.strftime("%d/%m/%y %H:%M")
+print("cotação gerada em ", current_time)
 
 MAX_WIDTH = 1280  # px
 FONT_HEIGHT = 60

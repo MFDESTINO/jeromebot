@@ -35,7 +35,7 @@ class JeromeBot:
         for msg in message:
             self.driver.find_element_by_name(
                 'xc_message').send_keys(msg, Keys.ENTER)
-        #self.driver.find_element_by_name('view_post').click()
+        self.driver.find_element_by_name('view_post').click()
 
     def make_image(self, font, img_path, msg1, msg2, pos1, pos2, color, output_path):
 

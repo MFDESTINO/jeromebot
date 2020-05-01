@@ -1,2 +1,4 @@
 *.pyc
 output.png
+geckodriver.log
+personalinfo.py

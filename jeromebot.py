@@ -61,5 +61,14 @@ class JeromeBot:
 
 
 if __name__ == "__main__":
+    import os, sys
+    os.chdir(os.path.dirname(sys.argv[0]))
+    src_dir = os.path.join(os.path.dirname(sys.argv[0]), 'src')
+    font_file = os.path.join(src_dir, 'FreeSansBold.otf')
+    jerome_file = os.path.join(src_dir, 'jerome5.jpg')
+    out_file = os.path.join(os.getcwd(), 'output.png')
+    frase1 = "ei carinha que mora logo ali"
+    frase2 = "me empresta " + '5.49 real brasileiro'
     jerome = JeromeBot()
-    jerome.post_image('teste.jpeg', ['teste', 'outra linha'])
+    jerome.make_image(font_file, jerome_file, frase1,
+                         frase2, (400, 10), (300, 600), '#e3c520', out_file)

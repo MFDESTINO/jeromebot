@@ -27,7 +27,7 @@ class JeromeBot:
         self.driver.get('https://mbasic.facebook.com/jeromebot5000')
 
     def post_image(self, file_path, message):
-
+        time.sleep(1)
         self.driver.find_element_by_name('view_photo').click()
         self.driver.find_element_by_name('file1').send_keys(file_path)
         self.driver.find_element_by_name('add_photo_done').click()

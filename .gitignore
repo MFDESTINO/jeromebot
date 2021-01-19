@@ -1,4 +1,6 @@
 *.pyc
 output.png
-geckodriver.log
-personalinfo.py
+jerometoken.py
+package/
+jerome.zip
+build.sh

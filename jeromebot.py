@@ -1,74 +1,33 @@
-from selenium import webdriver
-from selenium.webdriver import Firefox
-from selenium.webdriver.firefox.webdriver import FirefoxProfile
-from selenium.webdriver.firefox.options import Options
-from selenium.common.exceptions import NoSuchElementException
-from selenium.webdriver.common.keys import Keys
-from PIL import Image, ImageFont, ImageDraw
-from requests_html import HTMLSession
-import personalinfo
-import time
+from io import BytesIO
+from facebook import GraphAPI
+from PIL import Image, ImageDraw, ImageFont
+from jerometoken import token
+import requests
+import json
 
 
-class JeromeBot:
-    firefox_profile_dir = personalinfo.firefox_profile_dir
+class JeromeBot():
+    def __init__(self):
+        self.graph = GraphAPI(access_token=token)
 
-    def __init__(self, headless=False):
-        self.profile = FirefoxProfile(self.firefox_profile_dir)
-        self.options = Options()
-        self.options.add_argument('-headless')
-        if headless:
-            self.driver = Firefox(firefox_profile=self.profile,
-                                  executable_path='geckodriver',
-                                  options=self.options)
-        else:
-            self.driver = Firefox(firefox_profile=self.profile,
-                                  executable_path='geckodriver')
-        self.driver.get('https://mbasic.facebook.com/jeromebot5000')
+    def img_to_file(self, img):
+        img_byte_arr = BytesIO()
+        img.save(img_byte_arr, format='PNG')
+        return(img_byte_arr.getvalue())
 
-    def post_image(self, file_path, message):
-        time.sleep(1)
-        self.driver.find_element_by_name('view_photo').click()
-        self.driver.find_element_by_name('file1').send_keys(file_path)
-        self.driver.find_element_by_name('add_photo_done').click()
-        time.sleep(1)
-        for msg in message:
-            self.driver.find_element_by_name(
-                'xc_message').send_keys(msg, Keys.ENTER)
-        self.driver.find_element_by_name('view_post').click()
-
-    def make_image(self, font, img_path, msg1, msg2, pos1, pos2, color, output_path):
-
-        FONT = ImageFont.truetype(font, 60)
-
-        base = Image.open(img_path).convert('RGBA')
-        txt = Image.new('RGBA', base.size, (255, 255, 255, 0))
-        d = ImageDraw.Draw(txt)
-
-        d.text(pos1, msg1, font=FONT, fill=color)
-        d.text(pos2, msg2, font=FONT, fill=color)
-
-        out = Image.alpha_composite(base, txt)
-        out.save(output_path)
+    def post_image(self, img, description):
+        img_file = self.img_to_file(img)
+        return self.graph.put_photo(image=img_file, message=description)
 
     def get_dolar(self):
-        s = HTMLSession()
-        r = s.get('https://www.google.com/search?q=dolar')
-        raw = r.html.find(
-            "#knowledge-currency__updatable-data-column", first=True)
-        cotacao = raw.text.split('\n')[1]
-        return cotacao
+        req = requests.get('https://economia.awesomeapi.com.br/all/USD-BRL')
+        return req.json()['USD']['bid'][:4]
 
-
-if __name__ == "__main__":
-    import os, sys
-    os.chdir(os.path.dirname(sys.argv[0]))
-    src_dir = os.path.join(os.path.dirname(sys.argv[0]), 'src')
-    font_file = os.path.join(src_dir, 'FreeSansBold.otf')
-    jerome_file = os.path.join(src_dir, 'jerome5.jpg')
-    out_file = os.path.join(os.getcwd(), 'output.png')
-    frase1 = "ei carinha que mora logo ali"
-    frase2 = "me empresta " + '5.49 real brasileiro'
-    jerome = JeromeBot()
-    jerome.make_image(font_file, jerome_file, frase1,
-                         frase2, (400, 10), (300, 600), '#e3c520', out_file)
+    def make_image(self, font, src_img, msgs):
+        FONT = ImageFont.truetype(font, 60)
+        base = Image.open(src_img).convert('RGBA')
+        txt = Image.new('RGBA', base.size, (255, 255, 255, 0))
+        d = ImageDraw.Draw(txt)
+        for msg in msgs:
+            d.text(msg['pos'], msg['msg'], font=FONT, fill=msg['color'])
+        return Image.alpha_composite(base, txt)
